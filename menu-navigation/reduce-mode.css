@@ -1,0 +1,8 @@
+@media (prefers-reduced-motion: reduce) {
+    [class*="transition"] {
+        transition: none;
+    }
+    [class*="animate-"] {
+        animation: none;
+    }
+}

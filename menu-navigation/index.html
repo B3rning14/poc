@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html lang="fr">
+    <head>
+        <title>POC - Menu Navigation</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width" />
+        <link
+            href="https://unpkg.com/tailwindcss@2.0.2/dist/tailwind.min.css"
+            type="text/css"
+            rel="stylesheet"
+        />
+        <!--[START] POC Only-->
+        <link rel="stylesheet" href="reduce-mode.css" />
+        <!--[END] POC Only-->
+        <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.js" defer></script>
+        <script src="menu_navigation.js"></script>
+        <script>
+            const translations = {
+                "burger.closed": "Ouvrir le menu",
+                "burger.opened": "Fermer le menu"
+            };
+        </script>
+    </head>
+    <body class="container px-8 mx-auto my-8">
+        <h1 class="text-5xl">
+            <abbr title="Proof of concept" class="cursor-pointer">POC</abbr>
+            <span>– Menu Navigation</span>
+        </h1>
+        <nav
+            id="nav--default"
+            aria-label="Navigation principale"
+            x-data="menu_navigation('default', translations)"
+            x-init="init({
+                burger: { after: 'lg', position: 'right' }
+                //menu: { fullscreen: true }
+            })"
+            class="mt-4 bg-white"
+            :class="{
+                'fixed top-0 left-0 right-0 bottom-0 container px-8 mx-auto my-8':
+                    burger.show && menu.opened && menu.fullscreen
+            }"
+            @resize.window="onResize(window.innerWidth)"
+            x-on:keydown="navigate"
+        >
+            <button
+                id="nav--default__burger"
+                type="button"
+                class="flex flex-col items-center bg-gray-200 rounded-lg p-4 w-28 h-28 text-center"
+                :class="{ 'hidden': !burger.show, 'float-right': burger.show && burger.position == 'right' }"
+                :aria-controls="burger.show ? 'nav--default__menu' : null"
+                :aria-expanded="burger.show ? (menu.opened ? 'true': 'false') : null"
+                @click="menu.opened = !menu.opened"
+            >
+                <svg viewBox="0 0 100 80" width="40" height="40">
+                    <rect
+                        width="100"
+                        height="20"
+                        rx="8"
+                        style="transform-origin: 10% 25%"
+                        :class="{ 'transition duration-300 transform rotate-45': menu.opened }"
+                    ></rect>
+                    <rect y="30" width="100" height="20" rx="8" :class="{ 'hidden': menu.opened }"></rect>
+                    <rect
+                        y="60"
+                        width="100"
+                        height="20"
+                        rx="8"
+                        style="transform-origin: 10% 75%"
+                        :class="{ 'transition duration-300 transform -rotate-45': menu.opened }"
+                    ></rect>
+                </svg>
+                <span class="not-sr-only pt-2 font-bold text-sm" x-text="burger.text(menu.opened)"></span>
+            </button>
+            <ul
+                id="nav--default__menu"
+                class="w-full"
+                :class="{
+                    'hidden': burger.show && !menu.opened,
+                    'flex flex-row items-center border-2 border-gray-200': !burger.show,
+                    'mt-4': burger.show && burger.position == 'left',
+                    'mt-24': burger.show && menu.fullscreen && burger.position == 'right'
+                }"
+            >
+                <li class="p-4" :class="{ 'border-b-2 border-gray-200': burger.show }">
+                    <a href="#" :aria-selected="menu.itemSelected == 1 ? 'true' : 'false'" class="py-2 px-4">
+                        Lorem
+                    </a>
+                </li>
+                <li class="p-4" :class="{ 'border-b-2 border-gray-200': burger.show }">
+                    <a href="#" :aria-selected="menu.itemSelected == 2 ? 'true' : 'false'" class="py-2 px-4">
+                        Ipsum
+                    </a>
+                </li>
+                <li>
+                    <ul class="m-0 p-0">
+                        <li
+                            class="p-4"
+                            :aria-selected="menu.itemSelected == 3 ? 'true' : 'false'"
+                            :class="{ 'inline-block': !burger.show }"
+                        >
+                            <a
+                                class="bg-gray-200 hover:bg-gray text-gray-600 font-bold py-2 px-4 rounded inline-flex items-center"
+                                href="#"
+                                role="button"
+                            >
+                                dolor
+                            </a>
+                        </li>
+                        <li
+                            class="p-4"
+                            :aria-selected="menu.itemSelected == 4 ? 'true' : 'false'"
+                            :class="{ 'inline-block': !burger.show }"
+                        >
+                            <a
+                                class="bg-gray-200 hover:bg-gray text-gray-600 font-bold py-2 px-4 rounded inline-flex items-center"
+                                href="#"
+                                role="button"
+                            >
+                                sit
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+            </ul>
+        </nav>
+    </body>
+</html>

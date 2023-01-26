@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<!--suppress ALL -->
+<html lang="fr">
+    <head>
+        <title>POC – Champs d'autocomplétion avec accessibilité</title>
+        <meta charset="UTF-8" />
+        <link
+            href="https://unpkg.com/tailwindcss@2.0.2/dist/tailwind.min.css"
+            type="text/css"
+            rel="stylesheet"
+        />
+        <script src="https://cdn.jsdelivr.net/gh/alpinejs/alpine@v2.x.x/dist/alpine.js" defer></script>
+        <script src="autocomplete.js"></script>
+        <script>
+            const translations = {
+                "search.no_result": 'Aucun résultat trouvé pour "%query%"',
+                "search.total_items": '%total_items% résultats ont été trouvé',
+                "select.selected_item": '"%selected_item%" est sélectionné',
+                "select.change_index": 'L\'élément %navigate_item% est sélectionné. Sélectionné (%navigate_index+1% sur %indexes.length%)`'
+            };
+        </script>
+    </head>
+    <body class="container mx-auto my-8">
+        <h1 class="text-5xl">
+            <abbr title="Proof of concept" class="cursor-pointer">POC</abbr> – Champs d'autocomplétion avec
+            accessibilité
+        </h1>
+        <form
+            class="relative"
+            x-data="autoComplete('default','https://geo.api.gouv.fr/communes?nom=%query%&fields=nom,code,codesPostaux,codeDepartement,codeRegion,population&format=json&geometry=centre&limit=10', translations)"
+            x-init="init($dispatch)"
+        >
+            <div class="sr-only">
+                <div
+                    id="autocomplete-default__status--A"
+                    role="status"
+                    aria-atomic="true"
+                    aria-live="polite"
+                    x-ref="statusA"
+                    @notify.document="$refs['statusA'].innerHTML = $event.detail.notifier == '0' ? $event.detail.text : ''"
+                    @un_notify.document="$refs['statusA'].innerHTML = $event.detail.notifier == '0' ? '' : $refs['statusA'].innerHTML"
+                ></div>
+                <div
+                    id="autocomplete-default__status--B"
+                    role="status"
+                    aria-atomic="true"
+                    aria-live="polite"
+                    x-ref="statusB"
+                    @notify.document="$refs['statusB'].innerHTML = $event.detail.notifier == '1' ? $event.detail.text : ''"
+                    @un_notify.document="$refs['statusB'].innerHTML = $event.detail.notifier == '1' ? '' : $refs['statusB'].innerHTML"
+                ></div>
+            </div>
+            <label class="block" for="autocomplete-default">Nom de la ville</label>
+            <!--aria-describedby="autocomplete-default__assistiveHint"-->
+            <input
+                :aria-expanded="expanded ? 'true' : 'false'"
+                aria-describedby="autocomplete-default__assistiveHint"
+                aria-owns="autocomplete-default__list"
+                aria-autocomplete="list"
+                autocomplete="off"
+                class="relative text-lg p-2 rounded border-2 border-black my-4 focus:outline-none focus:ring focus:border-blue-300"
+                id="autocomplete-default"
+                name="input-autocomplete"
+                placeholder="Nom de la ville"
+                type="search"
+                role="combobox"
+                x-model="query"
+                x-on:keyup="search"
+                x-on:keydown="navigate"
+                x-on:focus="search"
+                x-on:search="reset"
+            />
+            <ul
+                class="absolute min-w-max max-w-xl text-lg border-2 rounded -mt-4"
+                :class="{ 'hidden': !expanded }"
+                id="autocomplete-default__list"
+                role="listbox"
+                @click.away="expanded = false"
+                x-html="listHTML"
+                :aria-activedescendant="'autocomplete-default__option--' + (selected_index + 1)"
+            ></ul>
+            <span id="autocomplete-default__assistiveHint" class="sr-only">
+                Lorsque les résultats de la saisie sont disponibles, utilisez les flèches vers le haut et vers
+                le bas pour consulter et entrez pour sélectionner.
+            </span>
+
+            <!-- POC-only -->
+            <div>
+                <h2 class="text-xl">[POC Only] Debugger</h2>
+                <pre class="bg-gray-400 font-mono p-2 h-72 max-h-72 overflow-y-scroll" x-html="debug()"></pre>
+            </div>
+
+            <div :class="{ 'hidden': selected_item === '' }">
+                <h2 class="text-xl">[POC Only] Result</h2>
+                <p class="text-md">
+                    <strong>Selected Value : </strong>
+                    <span x-text="selected_item"></span>
+                </p>
+                <pre
+                    class="bg-gray-400 font-mono p-2 h-72 max-h-72 overflow-y-scroll"
+                    x-html="items[selected_item] !== undefined && JSON.stringify(items[selected_item], undefined, 4)"
+                ></pre>
+            </div>
+        </form>
+    </body>
+</html>

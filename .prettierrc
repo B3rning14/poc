@@ -1,0 +1,8 @@
+{
+  "htmlWhitespaceSensitivity": "strict",
+  "jsxBracketSameLine": true,
+  "printWidth": 110,
+  "requirePragma": false,
+  "singleQuote": false,
+  "trailingComma": "none"
+}
